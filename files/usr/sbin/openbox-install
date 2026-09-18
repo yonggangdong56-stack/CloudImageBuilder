@@ -1,2 +1,0 @@
-#!/bin/sh
-exec /bin/sh /usr/sbin/openbox-install-real "$@"
