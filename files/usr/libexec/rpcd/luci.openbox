@@ -1,2 +1,0 @@
-#!/bin/sh
-case "$1" in list) echo '{"install":{"description":"安装 Open-Box","write":{"exec":["/usr/sbin/openbox-install-real"]}}}';; call) [ "$2" = install ] && /usr/sbin/openbox-install-real 2>&1;; esac
