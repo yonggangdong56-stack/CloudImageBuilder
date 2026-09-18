@@ -27,6 +27,12 @@ echo "Building for profile: $PROFILE"
 echo "Include Docker: $INCLUDE_DOCKER"
 echo "Create pppoe-settings"
 mkdir -p  /home/build/immortalwrt/files/etc/config
+# Optional Open-Box installer, kept outside the base firmware runtime.
+mkdir -p /home/build/immortalwrt/files/usr/sbin
+if [ -f /home/build/immortalwrt/openbox-mt3600be-install.sh ]; then
+  cp /home/build/immortalwrt/openbox-mt3600be-install.sh /home/build/immortalwrt/files/usr/sbin/openbox-install
+  chmod 0755 /home/build/immortalwrt/files/usr/sbin/openbox-install
+fi
 
 # 创建pppoe配置文件 yml传入pppoe变量————>pppoe-settings文件
 cat << EOF > /home/build/immortalwrt/files/etc/config/pppoe-settings
