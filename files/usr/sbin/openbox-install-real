@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+[ "$(id -u)" = 0 ] || exit 1
+[ "$(uname -m)" = aarch64 ] || { echo "仅支持 ARM64"; exit 1; }
+command -v curl >/dev/null 2>&1 || { echo "请先安装 curl"; exit 1; }
+TARGET=/opt
+for p in /mnt/sda1 /mnt/mmcblk0p1 /mnt/usb /media/sda1; do
+ [ -d "$p" ] && [ "$(df -Pk "$p"|awk 'NR==2{print $4}')" -ge 512000 ] && TARGET="$p/openbox-opt" && break
+done
+mkdir -p "$TARGET"; [ "$(df -Pk "$TARGET"|awk 'NR==2{print $4}')" -ge 512000 ] || { echo "请挂载至少512MB可用空间的USB存储"; exit 1; }
+[ "$TARGET" = /opt ] || { mkdir -p /opt; [ -L /opt/open-box ] || ln -s "$TARGET" /opt/open-box; }
+BASE=https://github.com/liandu2024/Open-Box/releases/download/v0.1.202; A=open-box-v0.1.202-linux-arm64.tar.gz; D="$TARGET/.openbox.$$"; mkdir -p "$D"; trap 'rm -rf "$D"' EXIT
+curl -fL --connect-timeout 15 -o "$D/$A" "$BASE/$A"; curl -fL --connect-timeout 15 -o "$D/$A.sha256" "$BASE/$A.sha256"; (cd "$D" && sha256sum -c "$A.sha256")
+rm -rf /opt/open-box/*; tar -xzf "$D/$A" -C /opt/open-box; chmod +x /opt/open-box/bin/sing-box /opt/open-box/node/bin/node 2>/dev/null || true
+cp /opt/open-box/openwrt/initd/openbox /etc/init.d/openbox; cp /opt/open-box/openwrt/initd/openbox-panel /etc/init.d/openbox-panel; chmod +x /etc/init.d/openbox*
+/etc/init.d/openbox-panel enable; /etc/init.d/openbox enable; /etc/init.d/openbox-panel start
+echo "安装完成，访问 http://$(uci -q get network.lan.ipaddr 2>/dev/null || echo 192.168.8.1):2026"
