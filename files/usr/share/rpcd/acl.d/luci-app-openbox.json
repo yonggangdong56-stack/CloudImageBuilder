@@ -1,1 +1,0 @@
-{"luci-app-openbox":{"description":"Open-Box installer","read":{"ubus":{"file":{"/bin/ubus": ["call"]}}},"write":{"ubus":{"file":{"/bin/ubus": ["call"]}}}}}
